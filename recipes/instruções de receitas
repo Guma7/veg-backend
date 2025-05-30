@@ -1,0 +1,53 @@
+; eu ja exclui, vc nao le? acabei de te mandar excluir todas tags,sub- classe, e etc, e vc vai la e inclui tags. leia den ovo co matenção:nao este naos sao os proibidos,estes sao os novos, vc nao conferiu? ''3.1 Cadastro de Receita
+
+;     • Campos obrigatórios:
+
+;         1. Nome da Receita
+
+;         2. Class (Entrada, Prato Principal, Sobremesa, Lanche, Aniversário Vegano, Suco, Drink, Veg Frios, Veg Carnes)
+
+;         3. Gênero (campo livre de escrita para o usuario) ex:Pizza, Salada, etc
+
+;            (em Gênero, o sistema cria tags do que os usuarios vão cadastrando, como ‘’Pizza’’  e sugere esta tag para usuarios que estão digitando esta palavra (ou completando esta palavra), isso reduz armazenamento e otimiza a organização no sistema de busca desta opção.
+
+;           4. Estilo (Gourmet, Caseira)
+
+#           5. Nível Nutricional (Baixo, Médio, Alto)
+
+#            6. Não Contém (campo livre) ex: Açucar, Glútem e etc
+
+#             7. Tradicional (Campo Livre) ex: Rio Grande do Sul, Japão e etc
+
+#            8. Ingredientes (campo livre)
+
+;         9. Modo de Preparo (campo livre)
+
+;     • Imagem da Receita: A imagem será exibida acima do nome da receita na interface.
+
+;     • Link do YouTube: Opcional, caso exista.
+
+; Observação: A imagem e o nome da receita devem ser exibidos para outros usuários quando acessarem a receita. A imagem aparecerá acima do nome da receita.
+
+# obs2= apenas o 1,2,3,4,8,9 são obrigatorios de serem prenchidos, mostre no site para que os usuarios saibam.
+
+; '' se eles estiverem em ingles, são eles. vc nao pode descarta-los no codigo só pq estao em ingles. Eles precisam ser adcionados quando nao existirem, nao removidos. os campso que precisam ser removidos são: ''Tags'', Sub-class ou Sub-classe, Sub-gender ou sub-genero, time e etc. Isso no cadastro de receitas, Na pesquisa é isso aqui:3.3 Busca de Receitas
+
+; • Filtros Disponíveis:
+
+; 1. Nome da Receita
+
+; 2. Class (Entrada, Prato Principal, Sobremesa, Lanche, Aniversário Vegano, Suco, Drink)
+
+; 3. Gênero (campo livre Ex:Pizza, Salada, etc )
+
+; (em Gênero, o sistema cria tags do que os usuarios vão cadastrando, como ‘’Pizza’’ e sugere esta tag para usuarios que estão digitando esta palavra (ou completando esta palavra), isso reduz armazenamento e otimiza a organização no sistema de busca desta opção.
+
+; 4. Estilo (Gourmet, Caseira)
+
+# 5. Nível Nutricional (Baixo, Médio, Alto)
+
+# 6. Não Contém (campo livre ex: Açucar, Glútem e etc)
+
+# 7. Tradicional (Campo Livre ex: Rio Grande do Sul, Ja)
+
+# 8. Ingredientes (campo livre). '' estas opções, sejam com nome em ingles, portugues, com underline etc, sao as corretas, as como ''tags'', ''Sub-Classe'', ''Sub-Genero'' , ''Time'', Time prepation'' e etc, devem ser eliminadas de todo o projeto. faça uma analise profunda, de cada arquivo e codigo, e garanta isso, se naficarei triste com vc.
