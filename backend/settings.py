@@ -30,9 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Para desenvolvimento local, mantenha DEBUG como True
+# Para desenvolvimento local, mantenha DEBUG  como True
 # Para produção, defina a variável de ambiente DEBUG como 'False'
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'false'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Em produção, use a variável de ambiente DJANGO_SECRET_KEY
@@ -80,7 +80,7 @@ STATICFILES_DIRS = [
 os.makedirs(os.path.join(BASE_DIR, 'static'), exist_ok=True)
 
 # Update ALLOWED_HOSTS for production
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com,veg-backend-rth1.onrender.com,https://vegworld.onrender.com').split(',')
 
 
 
@@ -184,7 +184,7 @@ CACHES = {
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configurações de CORS para desenvolvimento e produção
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,https://vegworld.onrender.com').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,https://vegworld.onrender.com,https://veg-backend-rth1.onrender.com').split(',')
 
 # Definição de CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
@@ -192,6 +192,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3000",
     "https://vegworld.onrender.com",
+    "https://veg-backend-rth1.onrender.com",
 ]
 
 # Adicionar domínio do Render para produção
