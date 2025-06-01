@@ -80,8 +80,12 @@ STATICFILES_DIRS = [
 os.makedirs(os.path.join(BASE_DIR, 'static'), exist_ok=True)
 
 # Update ALLOWED_HOSTS for production
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com,veg-backend-rth1.onrender.com,vegworld.onrender.com').split(',')
-
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'veg-backend-rth1.onrender.com',  
+    'https://vegworld.onrender.com',
+]
 
 
 # Application definition
