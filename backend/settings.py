@@ -29,11 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-rbs7y-^qnh-5-bxf+rs2*l0sflr4^jo)uwy+l2wa_8*!!1q&!r')
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# Para desenvolvimento local, mantenha DEBUG como True
+# Para produção, defina a variável de ambiente DEBUG como 'False'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# Em produção, use a variável de ambiente DJANGO_SECRET_KEY
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-rbs7y-^qnh-5-bxf+rs2*l0sflr4^jo)uwy+l2wa_8*!!1q&!r')
 
 # Configuração de logging para fornecer mais detalhes sobre erros
 LOGGING = {
@@ -77,7 +80,7 @@ STATICFILES_DIRS = [
 os.makedirs(os.path.join(BASE_DIR, 'static'), exist_ok=True)
 
 # Update ALLOWED_HOSTS for production
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
 
 
@@ -181,11 +184,14 @@ CACHES = {
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configurações de CORS para desenvolvimento e produção
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,https://vegworld.onrender.com').split(',')
+
+# Definição de CSRF_TRUSTED_ORIGINS
+CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3000",
-    "https://veg-frontend.onrender.com",
+    "https://vegworld.onrender.com",
 ]
 
 # Adicionar domínio do Render para produção
@@ -201,13 +207,7 @@ CSRF_COOKIE_HTTPONLY = not DEBUG
 CSRF_USE_SESSIONS = not DEBUG
 CSRF_COOKIE_SAMESITE = 'Lax' if not DEBUG else None
 
-# Adicionar localhost:3000 como origem confiável para CSRF
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3000",
-    "https://veg-frontend.onrender.com",
-]
+# CSRF_TRUSTED_ORIGINS já definido acima
 
 # Configurações de cookies para desenvolvimento e produção
 SESSION_COOKIE_SAMESITE = 'Lax' if not DEBUG else None
@@ -244,11 +244,11 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'veganworld',  # Changed to veganworld
-            'USER': 'postgres',
-            'PASSWORD': 'Lionking7',
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'NAME': os.environ.get('DB_NAME', 'veganworld'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'Lionking7'),  # Restaurando a senha para testes locais
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
 else:
