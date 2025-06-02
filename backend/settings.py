@@ -84,7 +84,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'veg-backend-rth1.onrender.com',  
-    'https://vegworld.onrender.com',
+    'vegworld.onrender.com',
 ]
 
 
@@ -188,13 +188,14 @@ CACHES = {
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configurações de CORS para desenvolvimento e produção
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,https://vegworld.onrender.com,https://veg-backend-rth1.onrender.com').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://143.54.144.104:3001,https://vegworld.onrender.com,https://veg-backend-rth1.onrender.com').split(',')
 
 # Definição de CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3000",
+    "http://143.54.144.104:3001",
     "https://vegworld.onrender.com",
     "https://veg-backend-rth1.onrender.com",
 ]
@@ -203,16 +204,32 @@ CSRF_TRUSTED_ORIGINS = [
 if not DEBUG:
     RENDER_EXTERNAL_URL = os.environ.get('RENDER_EXTERNAL_URL')
     if RENDER_EXTERNAL_URL:
-        CORS_ALLOWED_ORIGINS.append(RENDER_EXTERNAL_URL)
-        CSRF_TRUSTED_ORIGINS.append(RENDER_EXTERNAL_URL)
+        if RENDER_EXTERNAL_URL not in CORS_ALLOWED_ORIGINS:
+            CORS_ALLOWED_ORIGINS.append(RENDER_EXTERNAL_URL)
+        if RENDER_EXTERNAL_URL not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(RENDER_EXTERNAL_URL)
+
+# Configurações adicionais de CORS
+CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization', 'X-CSRFToken']
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # Configuração para CSRF
 CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = not DEBUG
 CSRF_USE_SESSIONS = not DEBUG
 CSRF_COOKIE_SAMESITE = 'Lax' if not DEBUG else None
-
-# CSRF_TRUSTED_ORIGINS já definido acima
 
 # Configurações de cookies para desenvolvimento e produção
 SESSION_COOKIE_SAMESITE = 'Lax' if not DEBUG else None
