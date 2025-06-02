@@ -208,6 +208,20 @@ if not DEBUG:
             CORS_ALLOWED_ORIGINS.append(RENDER_EXTERNAL_URL)
         if RENDER_EXTERNAL_URL not in CSRF_TRUSTED_ORIGINS:
             CSRF_TRUSTED_ORIGINS.append(RENDER_EXTERNAL_URL)
+    
+    # Garantir que os domínios do frontend e backend estejam nas listas
+    FRONTEND_URL = 'https://vegworld.onrender.com'
+    BACKEND_URL = 'https://veg-backend-rth1.onrender.com'
+    
+    if FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+    if FRONTEND_URL not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
+    
+    if BACKEND_URL not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(BACKEND_URL)
+    if BACKEND_URL not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(BACKEND_URL)
 
 # Configurações adicionais de CORS
 CORS_ALLOW_CREDENTIALS = True
@@ -223,16 +237,17 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'cache-control',
 ]
 
 # Configuração para CSRF
 CSRF_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_HTTPONLY = not DEBUG
-CSRF_USE_SESSIONS = not DEBUG
-CSRF_COOKIE_SAMESITE = 'Lax' if not DEBUG else None
+CSRF_COOKIE_HTTPONLY = False  # Permitir acesso via JavaScript
+CSRF_USE_SESSIONS = False     # Não usar sessões para CSRF
+CSRF_COOKIE_SAMESITE = 'None' if not DEBUG else None  # Permitir cookies cross-site em produção
 
 # Configurações de cookies para desenvolvimento e produção
-SESSION_COOKIE_SAMESITE = 'Lax' if not DEBUG else None
+SESSION_COOKIE_SAMESITE = 'None' if not DEBUG else None  # Permitir cookies cross-site em produção
 SESSION_COOKIE_SECURE = not DEBUG
 
 # REST_FRAMEWORK já configurado acima
