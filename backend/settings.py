@@ -243,12 +243,12 @@ CORS_ALLOW_HEADERS = [
 # Configuração para CSRF e cookies baseada no ambiente
 if DEBUG:
     # Configurações para ambiente de desenvolvimento
-    CSRF_COOKIE_SECURE = False  # Permitir cookies sem HTTPS em desenvolvimento
-    CSRF_COOKIE_HTTPONLY = False  # Permitir acesso via JavaScript
+    CSRF_COOKIE_SECURE = True  # Requer HTTPS em produção
+    CSRF_COOKIE_HTTPONLY = False  # Permitir acesso via JavaScript (necessário para frontend)
     CSRF_USE_SESSIONS = False     # Não usar sessões para CSRF
-    CSRF_COOKIE_SAMESITE = 'Lax'  # Mais seguro para desenvolvimento
-    SESSION_COOKIE_SAMESITE = 'Lax'  # Mais seguro para desenvolvimento
-    SESSION_COOKIE_SECURE = False  # Permitir cookies sem HTTPS em desenvolvimento
+    CSRF_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
+    SESSION_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
+    SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
 else:
     # Configurações para ambiente de produção
     CSRF_COOKIE_SECURE = True  # Requer HTTPS em produção
