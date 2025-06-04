@@ -8,8 +8,14 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
 """
 
 import os
+import dotenv
+from pathlib import Path
 
 from django.core.wsgi import get_wsgi_application
+
+# Carregar variáveis de ambiente do arquivo .env
+BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 

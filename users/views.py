@@ -41,94 +41,117 @@ def register_user(request):
     """
     Registra um novo usuário.
     """
-    logger.info(f"Tentativa de registro - Dados recebidos: {request.data}")
-    
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        try:
-            user = serializer.save()
-            logger.info(f"Usuário registrado com sucesso: {user.username}")
-            user = authenticate(
-                username=request.data.get('username'),
-                password=request.data.get('password')
-            )
-            if user:
-                login(request, user)
-                refresh = RefreshToken.for_user(user)
+    try:
+        logger.info(f"Tentativa de registro - Dados recebidos: {request.data}")
+        
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                user = serializer.save()
+                logger.info(f"Usuário registrado com sucesso: {user.username}")
+                user = authenticate(
+                    username=request.data.get('username'),
+                    password=request.data.get('password')
+                )
+                if user:
+                    login(request, user)
+                    refresh = RefreshToken.for_user(user)
+                    return Response({
+                        'user': UserSerializer(user).data,
+                        'message': 'Registro realizado com sucesso',
+                        'access': str(refresh.access_token),
+                        'refresh': str(refresh),
+                    }, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({
+                        'user': UserSerializer(user).data,
+                        'message': 'Usuário registrado com sucesso, mas falha ao autenticar automaticamente.'
+                    }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                logger.error(f"Erro ao salvar usuário: {str(e)}")
+                # Tratamento específico para erro de duplicidade de perfil
+                if 'duplicate key value violates unique constraint' in str(e) or 'violates unique constraint' in str(e):
+                    return Response({
+                        'error': 'Já existe um perfil para este usuário.',
+                        'message': 'Erro ao registrar usuário: perfil duplicado',
+                        'status_code': 400
+                    }, status=status.HTTP_400_BAD_REQUEST)
                 return Response({
-                    'user': UserSerializer(user).data,
-                    'message': 'Registro realizado com sucesso',
-                    'access': str(refresh.access_token),
-                    'refresh': str(refresh),
-                }, status=status.HTTP_201_CREATED)
-            else:
-                return Response({
-                    'user': UserSerializer(user).data,
-                    'message': 'Usuário registrado com sucesso, mas falha ao autenticar automaticamente.'
-                }, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.error(f"Erro ao salvar usuário: {str(e)}")
-            # Tratamento específico para erro de duplicidade de perfil
-            if 'duplicate key value violates unique constraint' in str(e) or 'violates unique constraint' in str(e):
-                return Response({
-                    'error': 'Já existe um perfil para este usuário.',
-                    'message': 'Erro ao registrar usuário: perfil duplicado',
-                    'status_code': 400
-                }, status=status.HTTP_400_BAD_REQUEST)
-            return Response({
-                'error': str(e),
-                'message': 'Erro ao registrar usuário'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # Retornar erros de validação de forma mais detalhada
-    error_messages = {}
-    for field, errors in serializer.errors.items():
-        error_messages[field] = str(errors[0]) if errors else 'Campo inválido'
-    
-    print(f"Erros de validação: {error_messages}")
-    
-    return Response({
-        'error': 'Erro de validação',
-        'detail': error_messages
-    }, status=status.HTTP_400_BAD_REQUEST)
+                    'error': str(e),
+                    'message': 'Erro ao registrar usuário'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Retornar erros de validação de forma mais detalhada
+        error_messages = {}
+        for field, errors in serializer.errors.items():
+            error_messages[field] = str(errors[0]) if errors else 'Campo inválido'
+        
+        logger.error(f"Erros de validação: {error_messages}")
+        
+        return Response({
+            'error': 'Erro de validação',
+            'detail': error_messages
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Erro não tratado durante o registro: {str(e)}")
+        return Response({
+            'error': 'Erro interno do servidor',
+            'message': 'Ocorreu um erro inesperado durante o registro',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Permitir acesso não autenticado explicitamente
 def login_user(request):
-    identifier = request.data.get('identifier')
-    password = request.data.get('password')
-    
-    # Verificar se o identificador é um email ou nome de usuário
-    if '@' in identifier:
-        # Tentar autenticar com email
-        try:
-            user_obj = User.objects.get(email=identifier)
-            username = user_obj.username
-        except User.DoesNotExist:
-            return Response(
-                {'error': 'Usuário não encontrado com este email'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-    else:
-        # Usar o identificador como nome de usuário
-        username = identifier
-    
-    user = authenticate(username=username, password=password)
-    if user:
-        refresh = RefreshToken.for_user(user)
-        # Incluir dados do usuário na resposta para evitar deslogamento automático
-        serializer = UserSerializer(user)
+    try:
+        identifier = request.data.get('identifier')
+        password = request.data.get('password')
+        
+        logger.info(f"Tentativa de login com identificador: {identifier}")
+        
+        # Verificar se o identificador é um email ou nome de usuário
+        if '@' in identifier:
+            # Tentar autenticar com email
+            try:
+                user_obj = User.objects.get(email=identifier)
+                username = user_obj.username
+            except User.DoesNotExist:
+                logger.warning(f"Usuário não encontrado com email: {identifier}")
+                return Response(
+                    {'error': 'Usuário não encontrado com este email'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+        else:
+            # Usar o identificador como nome de usuário
+            username = identifier
+        
+        user = authenticate(username=username, password=password)
+        if user:
+            login(request, user)
+            refresh = RefreshToken.for_user(user)
+            # Incluir dados do usuário na resposta para evitar deslogamento automático
+            serializer = UserSerializer(user)
+            logger.info(f"Login bem-sucedido para usuário: {username}")
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': serializer.data
+            })
+        
+        logger.warning(f"Credenciais inválidas para usuário: {username}")
+        return Response(
+            {'error': 'Credenciais inválidas'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    except Exception as e:
+        logger.error(f"Erro não tratado durante o login: {str(e)}")
         return Response({
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-            'user': serializer.data
-        })
-    return Response(
-        {'error': 'Credenciais inválidas'},
-        status=status.HTTP_401_UNAUTHORIZED
-    )
+            'error': 'Erro interno do servidor',
+            'message': 'Ocorreu um erro inesperado durante o login',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['POST'])
 def logout_user(request):

@@ -30,9 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Para desenvolvimento local, mantenha DEBUG  como True
-# Para produção, defina a variável de ambiente DEBUG como 'False'
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'false'
+# Para produção no Render, sempre False
+DEBUG = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Em produção, use a variável de ambiente DJANGO_SECRET_KEY
@@ -200,28 +199,19 @@ CSRF_TRUSTED_ORIGINS = [
     "https://veg-backend-rth1.onrender.com",
 ]
 
-# Adicionar domínio do Render para produção
-if not DEBUG:
-    RENDER_EXTERNAL_URL = os.environ.get('RENDER_EXTERNAL_URL')
-    if RENDER_EXTERNAL_URL:
-        if RENDER_EXTERNAL_URL not in CORS_ALLOWED_ORIGINS:
-            CORS_ALLOWED_ORIGINS.append(RENDER_EXTERNAL_URL)
-        if RENDER_EXTERNAL_URL not in CSRF_TRUSTED_ORIGINS:
-            CSRF_TRUSTED_ORIGINS.append(RENDER_EXTERNAL_URL)
-    
-    # Garantir que os domínios do frontend e backend estejam nas listas
-    FRONTEND_URL = 'https://vegworld.onrender.com'
-    BACKEND_URL = 'https://veg-backend-rth1.onrender.com'
-    
-    if FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
-    if FRONTEND_URL not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
-    
-    if BACKEND_URL not in CORS_ALLOWED_ORIGINS:
-        CORS_ALLOWED_ORIGINS.append(BACKEND_URL)
-    if BACKEND_URL not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(BACKEND_URL)
+# Garantir que os domínios do Render estejam sempre configurados
+FRONTEND_URL = 'https://vegworld.onrender.com'
+BACKEND_URL = 'https://veg-backend-rth1.onrender.com'
+
+if FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+if FRONTEND_URL not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
+
+if BACKEND_URL not in CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS.append(BACKEND_URL)
+if BACKEND_URL not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(BACKEND_URL)
 
 # Configurações adicionais de CORS
 CORS_ALLOW_CREDENTIALS = True
@@ -240,23 +230,13 @@ CORS_ALLOW_HEADERS = [
     'cache-control',
 ]
 
-# Configuração para CSRF e cookies baseada no ambiente
-if DEBUG:
-    # Configurações para ambiente de desenvolvimento
-    CSRF_COOKIE_SECURE = True  # Requer HTTPS em produção
-    CSRF_COOKIE_HTTPONLY = False  # Permitir acesso via JavaScript (necessário para frontend)
-    CSRF_USE_SESSIONS = False     # Não usar sessões para CSRF
-    CSRF_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
-    SESSION_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
-    SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
-else:
-    # Configurações para ambiente de produção
-    CSRF_COOKIE_SECURE = True  # Requer HTTPS em produção
-    CSRF_COOKIE_HTTPONLY = False  # Permitir acesso via JavaScript (necessário para frontend)
-    CSRF_USE_SESSIONS = False     # Não usar sessões para CSRF
-    CSRF_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
-    SESSION_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
-    SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
+# Configurações para CSRF e cookies para produção no Render
+CSRF_COOKIE_SECURE = True  # Requer HTTPS em produção
+CSRF_COOKIE_HTTPONLY = False  # Permitir acesso via JavaScript (necessário para frontend)
+CSRF_USE_SESSIONS = False     # Não usar sessões para CSRF
+CSRF_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
+SESSION_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
+SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
 
 # REST_FRAMEWORK já configurado acima
 
@@ -282,28 +262,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Configuração de banco de dados para desenvolvimento e produção
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME', 'veganworld'),
-            'USER': os.environ.get('DB_USER', 'postgres'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', 'Lionking7'),  # Restaurando a senha para testes locais
-            'HOST': os.environ.get('DB_HOST', 'localhost'),
-            'PORT': os.environ.get('DB_PORT', '5432'),
-        }
-    }
-else:
-    # Configuração para PostgreSQL em produção
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+# Usar sempre a URL do banco de dados do Render
+DATABASE_URL = 'postgresql://guma7:tGcso1V5ujfHGGQQEgwCUIQEIOC6BlzV@dpg-d0t2r13ipnbc73fggso0-a/veganworld_db'
+
+DATABASES = {
+    'default': dj_database_url.parse(DATABASE_URL)
+}
 
 
 # Password validation
