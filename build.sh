@@ -2,19 +2,25 @@
 # exit on error
 set -o errexit
 
-echo "=== Instalando dependências ==="
+echo "🔧 Instalando dependências..."
 pip install -r requirements.txt
 
-echo "=== Verificando status das migrações ==="
-python manage.py showmigrations
-
-echo "=== Coletando arquivos estáticos ==="
+echo "📦 Coletando arquivos estáticos..."
 python manage.py collectstatic --no-input
 
-echo "=== Executando script de migração forçada ==="
-python force_migrate.py
+echo "🔍 Verificando status do banco de dados..."
+python check_db_status.py
 
-echo "=== Verificação final das migrações ==="
+echo "🔍 Verificando status das migrações antes..."
 python manage.py showmigrations
+
+echo "🚀 Executando correção de tabelas faltantes..."
+python fix_missing_tables.py
+
+echo "🔧 Corrigindo signals do UserProfile..."
+python fix_user_signals.py
+
+echo "✅ Verificando status final do banco de dados..."
+python check_db_status.py
 
 echo "=== Build concluído com sucesso ==="
