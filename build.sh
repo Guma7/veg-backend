@@ -17,6 +17,9 @@ python manage.py showmigrations
 echo "🚀 Executando correção de tabelas faltantes..."
 python fix_missing_tables.py
 
+echo "🔧 Corrigindo problemas específicos no esquema do banco de dados..."
+python fix_db_schema.py
+
 echo "🔧 Corrigindo signals do UserProfile..."
 python fix_user_signals.py
 

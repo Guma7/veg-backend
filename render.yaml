@@ -1,0 +1,60 @@
+# render.yaml
+services:
+  - type: web
+    name: veg-backend
+    env: python
+    region: oregon  # Escolha a região mais próxima de seus usuários
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --no-input
+    startCommand: |
+      python check_db_status.py
+      python fix_missing_tables.py
+      python fix_db_schema.py
+      python fix_user_signals.py
+      gunicorn backend.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DATABASE_URL
+        fromDatabase:
+          name: veg-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://vegworld.onrender.com,http://localhost:3000,http://127.0.0.1:3000"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://vegworld.onrender.com,http://localhost:3000,http://127.0.0.1:3000"
+
+  - type: web
+    name: vegworld
+    env: node
+    region: oregon
+    buildCommand: |
+      cd ../frontend
+      npm install
+      npm run build
+    startCommand: |
+      cd ../frontend
+      npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://veg-backend.onrender.com
+
+databases:
+  - name: veg-db
+    plan: free
+    region: oregon
+    databaseName: vegworld
+    user: vegworld_user
