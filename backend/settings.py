@@ -264,8 +264,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Usar sempre a URL do banco de dados do Render
-DATABASE_URL = 'postgresql://guma7:tGcso1V5ujfHGGQQEgwCUIQEIOC6BlzV@dpg-d0t2r13ipnbc73fggso0-a/veganworld_db'
+# Usar a URL do banco de dados do ambiente ou a URL do banco de dados do Render como fallback
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://guma7:tGcso1V5ujfHGGQQEgwCUIQEIOC6BlzV@dpg-d0t2r13ipnbc73fggso0-a/veganworld_db')
 
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL)
