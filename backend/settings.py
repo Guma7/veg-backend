@@ -238,6 +238,10 @@ CSRF_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
 SESSION_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
 SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
 
+# Adicionar configuração para cookies particionados
+CSRF_COOKIE_PARTITIONED = True  # Adicionar atributo Partitioned ao cookie CSRF
+SESSION_COOKIE_PARTITIONED = True  # Adicionar atributo Partitioned ao cookie de sessão
+
 # REST_FRAMEWORK já configurado acima
 
 ROOT_URLCONF = 'backend.urls'
@@ -265,11 +269,21 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 # Usar a URL do banco de dados do ambiente ou a URL do banco de dados do Render como fallback
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://guma7:tGcso1V5ujfHGGQQEgwCUIQEIOC6BlzV@dpg-d0t2r13ipnbc73fggso0-a/veganworld_db')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL)
-}
+# Se estiver em ambiente de desenvolvimento local, usar SQLite
+if not DATABASE_URL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+else:
+    # Em produção, usar o PostgreSQL do Render
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
 
 
 # Password validation
