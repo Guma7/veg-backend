@@ -187,14 +187,10 @@ CACHES = {
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configurações de CORS para desenvolvimento e produção
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://143.54.144.104:3001,https://vegworld.onrender.com,https://veg-backend-rth1.onrender.com').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://vegworld.onrender.com,https://veg-backend-rth1.onrender.com').split(',')
 
 # Definição de CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3000",
-    "http://143.54.144.104:3001",
     "https://vegworld.onrender.com",
     "https://veg-backend-rth1.onrender.com",
 ]
