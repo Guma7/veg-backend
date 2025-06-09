@@ -49,7 +49,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ).order_by('-average_rating')
     lookup_field = 'slug'  # Usar slug como campo de busca ao invés de id
     serializer_class = RecipeSerializer
-    
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, context={'request': request})
+        return Response(serializer.data)
     def perform_create(self, serializer):
         # Obter imagens do request
         images = self.request.FILES.getlist('images')
