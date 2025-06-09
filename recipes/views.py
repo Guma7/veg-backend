@@ -139,7 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         else:
             logger.warning(f"Tentativa de atualizar imagens sem enviar novas imagens para a receita {recipe.id}")
         
-        return Response(self.get_serializer(recipe).data)
+        return Response(self.get_serializer(recipe, context={'request': request}).data)
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'recipe_class', 'style', 'genre', 'nutritional_level', 'does_not_contain', 'traditional', 'ingredients']
     
@@ -185,7 +185,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         
         return Response({
-            'rating': RatingSerializer(rating).data,
+            'rating': RatingSerializer(rating, context={'request': request}).data,
             'average_rating': recipe.average_rating
         })
 
@@ -199,7 +199,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             avg_rating=Avg('ratings__score')
         ).order_by('-avg_rating')[:4]
         
-        serializer = self.get_serializer(similar_recipes, many=True)
+        serializer = self.get_serializer(similar_recipes, many=True, context={'request': request})
         return Response(serializer.data)
 
 
