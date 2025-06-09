@@ -162,8 +162,12 @@ class RecipeImage(models.Model):
         # Adicionar log para depuração do salvamento de imagens
         import logging
         logger = logging.getLogger('django')
-        logger.info(f"Salvando imagem para receita {self.recipe.id}: {self.image.name if self.image else 'Sem imagem'}")
-        super().save(*args, **kwargs)
+        try:
+            logger.info(f"Salvando imagem para receita {self.recipe.id}: {self.image.name if self.image else 'Sem imagem'} | Caminho: {self.image.path if self.image else 'Sem caminho'} | Receita: {self.recipe}")
+            super().save(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Erro ao salvar imagem da receita {self.recipe.id}: {str(e)} | Caminho: {self.image.path if self.image else 'Sem caminho'} | Receita: {self.recipe}")
+            raise
 
     def __str__(self):
         return f"Imagem da receita {self.recipe.title}"

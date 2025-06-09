@@ -60,5 +60,5 @@ class RecipeSerializer(serializers.ModelSerializer):
         except Exception as e:
             import logging
             logger = logging.getLogger('django')
-            logger.error(f"Erro ao obter URL da imagem: {str(e)}")
+            logger.error(f"Erro ao obter URL da imagem: {str(e)} | obj: {obj} | request: {self.context.get('request')} | images: {getattr(obj, 'images', None)}")
         return None
