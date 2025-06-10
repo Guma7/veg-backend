@@ -68,17 +68,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         # Salvar a receita
         recipe = serializer.save(author=self.request.user)
         
-        # Processar imagens da lista
+        # Processar imagens da lista usando Cloudinary
         for index, image in enumerate(images):
             try:
+                # O Cloudinary já é configurado como storage padrão,
+                # então o upload será feito automaticamente
                 RecipeImage.objects.create(
                     recipe=recipe,
                     image=image,
                     is_primary=(index == 0)
                 )
-                logger.info(f"Imagem {index} salva com sucesso: {image.name}")
+                logger.info(f"Imagem {index} salva com sucesso no Cloudinary: {image.name}")
             except Exception as e:
-                logger.error(f"Erro ao salvar imagem {index}: {str(e)}")
+                logger.error(f"Erro ao salvar imagem {index} no Cloudinary: {str(e)}")
         
         # Processar imagem única se existir e não houver imagens na lista
         if single_image and not images:
@@ -88,16 +90,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     image=single_image,
                     is_primary=True
                 )
-                logger.info(f"Imagem única salva com sucesso: {single_image.name}")
+                logger.info(f"Imagem única salva com sucesso no Cloudinary: {single_image.name}")
             except Exception as e:
-                logger.error(f"Erro ao salvar imagem única: {str(e)}")
-
+                logger.error(f"Erro ao salvar imagem única no Cloudinary: {str(e)}")
 
     @action(detail=True, methods=['post'])
     def update_images(self, request, slug=None):
         recipe = self.get_object()
         images = request.FILES.getlist('images')
         primary_index = request.data.get('primary_index', 0)
+
+        try:
+            # Remover imagens antigas
+            recipe.images.all().delete()
+
+            # Adicionar novas imagens
+            for index, image in enumerate(images):
+                RecipeImage.objects.create(
+                    recipe=recipe,
+                    image=image,
+                    is_primary=(index == primary_index)
+                )
+
+            return Response({'status': 'images updated'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         # Adicionar logs para depuração
         import logging

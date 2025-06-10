@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 import os
 from uuid import uuid4
+from cloudinary.models import CloudinaryField
 
 
 
@@ -68,9 +69,16 @@ class Recipe(models.Model):
         null=True,
         validators=[validate_youtube_link]
     )
-    image = models.ImageField(
-        upload_to='recipe_images/',
-        validators=[validate_image]
+    image = CloudinaryField(
+        'image',
+        folder='recipe_images',
+        transformation={
+            'quality': 'auto:eco',
+            'fetch_format': 'auto',
+            'crop': 'limit',
+            'width': 1920,
+            'height': 1080
+        }
     )
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -154,16 +162,23 @@ def recipe_image_path(instance, filename):
 
 class RecipeImage(models.Model):
     recipe = models.ForeignKey('Recipe', related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=recipe_image_path, validators=[validate_image])
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    image = CloudinaryField(
+        'image',
+        folder='recipe_images',
+        transformation={
+            'quality': 'auto:eco',
+            'fetch_format': 'auto',
+            'crop': 'limit',
+            'width': 1920,
+            'height': 1080
+        }
+    )
     is_primary = models.BooleanField(default=False)
-        
-    def save(self, *args, **kwargs):
-        # Adicionar log para depuração do salvamento de imagens
-        import logging
-        logger = logging.getLogger('django')
-        logger.info(f"Salvando imagem para receita {self.recipe.id}: {self.image.name if self.image else 'Sem imagem'}")
-        super().save(*args, **kwargs)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_primary', '-created_at']
 
     def __str__(self):
         return f"Imagem da receita {self.recipe.title}"
