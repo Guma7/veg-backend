@@ -49,20 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ).order_by('-average_rating')
     lookup_field = 'slug'  # Usar slug como campo de busca ao invés de id
     serializer_class = RecipeSerializer
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, context={'request': request})
-        return Response(serializer.data)
+    
     def perform_create(self, serializer):
         # Obter imagens do request
         images = self.request.FILES.getlist('images')
@@ -139,7 +126,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         else:
             logger.warning(f"Tentativa de atualizar imagens sem enviar novas imagens para a receita {recipe.id}")
         
-        return Response(self.get_serializer(recipe, context={'request': request}).data)
+        return Response(self.get_serializer(recipe).data)
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'recipe_class', 'style', 'genre', 'nutritional_level', 'does_not_contain', 'traditional', 'ingredients']
     
@@ -185,7 +172,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         
         return Response({
-            'rating': RatingSerializer(rating, context={'request': request}).data,
+            'rating': RatingSerializer(rating).data,
             'average_rating': recipe.average_rating
         })
 
@@ -199,7 +186,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             avg_rating=Avg('ratings__score')
         ).order_by('-avg_rating')[:4]
         
-        serializer = self.get_serializer(similar_recipes, many=True, context={'request': request})
+        serializer = self.get_serializer(similar_recipes, many=True)
         return Response(serializer.data)
 
 
