@@ -151,14 +151,7 @@ class RatingHistory(models.Model):
 
 # RecipeTag foi removido conforme as instruções do documento
 
-def recipe_image_path(instance, filename):
-    # Obter a extensão do arquivo original
-    ext = filename.split('.')[-1]
-    # Criar um nome de arquivo baseado no slug da receita
-    recipe_slug = instance.recipe.slug
-    # Não precisamos mais de um identificador único, pois o slug já é único
-    # Retornar o caminho completo usando apenas o slug da receita
-    return f'recipe_images/{recipe_slug}.{ext}'
+# Função recipe_image_path removida - agora usando CloudinaryField
 
 class RecipeImage(models.Model):
     recipe = models.ForeignKey('Recipe', related_name='images', on_delete=models.CASCADE)

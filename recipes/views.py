@@ -3,6 +3,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import Recipe, Rating, RecipeImage
 from users.models import UserProfile
 from .serializers import (
@@ -49,6 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ).order_by('-average_rating')
     lookup_field = 'slug'  # Usar slug como campo de busca ao invés de id
     serializer_class = RecipeSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]  # Suporte para uploads de arquivos
     
     def perform_create(self, serializer):
         # Obter imagens do request

@@ -94,15 +94,10 @@ ALLOWED_HOSTS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Garantir que o diretório de mídia exista
-import os
+# Diretórios locais removidos - agora usando apenas Cloudinary para uploads
+# MEDIA_ROOT ainda é necessário para arquivos estáticos do Django Admin
 if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT, exist_ok=True)
-
-# Garantir que o diretório recipe_images exista
-RECIPE_IMAGES_DIR = os.path.join(MEDIA_ROOT, 'recipe_images')
-if not os.path.exists(RECIPE_IMAGES_DIR):
-    os.makedirs(RECIPE_IMAGES_DIR, exist_ok=True)
 
 # Configurações de CORS para desenvolvimento e produção
 CORS_ALLOW_CREDENTIALS = True
@@ -248,6 +243,11 @@ CSRF_TOKEN_HEADER_NAME = 'X-CSRFToken'  # Nome do token no cabeçalho
 # Estas configurações garantem compatibilidade
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 CSRF_COOKIE_AGE = 31449600  # 1 ano em segundos
+
+# Configurações de upload para evitar problemas com CSRF em uploads grandes
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000  # Permitir mais campos em formulários
 
 # REST_FRAMEWORK já configurado acima
 

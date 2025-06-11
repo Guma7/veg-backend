@@ -1,9 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import UserProfile
 from .serializers import UserProfileSerializer, UserSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -11,6 +12,10 @@ import logging
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError
 import json
 import os
 
@@ -178,6 +183,7 @@ def delete_all_users(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'OPTIONS'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser, JSONParser])
 def update_profile(request):
     """Atualiza o perfil do usuário."""
     user = request.user
@@ -206,38 +212,22 @@ def update_profile(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
     
-    # Processar imagem de perfil
+    # Processar imagem de perfil (Cloudinary gerencia automaticamente)
     try:
         if 'profile_image' in request.FILES:
-            # Remover imagem antiga se existir
-            if profile.profile_image and os.path.isfile(profile.profile_image.path):
-                try:
-                    os.remove(profile.profile_image.path)
-                except Exception as e:
-                    print(f"Erro ao remover imagem antiga: {str(e)}")
-            
+            # O Cloudinary automaticamente substitui a imagem anterior
             profile.profile_image = request.FILES['profile_image']
-            print(f"Imagem salva com sucesso: {profile.profile_image.path}")
+            logger.info(f"Imagem de perfil salva com sucesso no Cloudinary: {profile.profile_image}")
         elif 'profile_picture' in request.FILES:
             # Nome alternativo para compatibilidade
-            if profile.profile_image and os.path.isfile(profile.profile_image.path):
-                try:
-                    os.remove(profile.profile_image.path)
-                except Exception as e:
-                    print(f"Erro ao remover imagem antiga: {str(e)}")
-            
             profile.profile_image = request.FILES['profile_picture']
-            print(f"Imagem salva com sucesso: {profile.profile_image.path}")
+            logger.info(f"Imagem de perfil salva com sucesso no Cloudinary: {profile.profile_image}")
         elif 'remove_profile_image' in request.data or 'remove_profile_picture' in request.data:
-            # Remover imagem de perfil
-            if profile.profile_image and os.path.isfile(profile.profile_image.path):
-                try:
-                    os.remove(profile.profile_image.path)
-                except Exception as e:
-                    print(f"Erro ao remover imagem: {str(e)}")
+            # Remover imagem de perfil (Cloudinary gerencia a remoção)
             profile.profile_image = None
+            logger.info("Imagem de perfil removida")
     except Exception as e:
-        print(f"Erro ao processar imagem: {str(e)}")
+        logger.error(f"Erro ao processar imagem de perfil: {str(e)}")
         return Response({'error': f'Erro ao processar imagem: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     profile.save()
@@ -245,10 +235,11 @@ def update_profile(request):
     # Retornar dados atualizados
     serializer = UserProfileSerializer(profile)
     
-    # Adicionar URL completa da imagem de perfil na resposta
+    # Adicionar URL da imagem de perfil (Cloudinary fornece URL completa)
     data = serializer.data
     if profile.profile_image:
-        data['profile_image'] = request.build_absolute_uri(profile.profile_image.url)
+        # Cloudinary já fornece URL completa, não precisa de build_absolute_uri
+        data['profile_image'] = str(profile.profile_image.url)
     
     # Adicionar campos adicionais para compatibilidade com o frontend
     data['profileImage'] = data.get('profile_image')
@@ -309,9 +300,10 @@ def get_user_by_username(request, username):
             'socialLinks': profile.social_links or {}
         }
         
-        # Tratar a URL da imagem de perfil
+        # Tratar a URL da imagem de perfil (Cloudinary)
         if profile.profile_image and hasattr(profile.profile_image, 'url'):
-            user_data['profileImage'] = request.build_absolute_uri(profile.profile_image.url)
+            # Cloudinary já fornece URL completa
+            user_data['profileImage'] = str(profile.profile_image.url)
         else:
             user_data['profileImage'] = request.build_absolute_uri('/media/default/default_profile.svg')
         

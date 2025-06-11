@@ -14,9 +14,17 @@ class RatingSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'score', 'created_at')
 
 class RecipeImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = RecipeImage
-        fields = ('id', 'image', 'uploaded_at')
+        fields = ('id', 'image', 'image_url', 'is_primary', 'created_at')
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            # Cloudinary já fornece URLs completas
+            return str(obj.image.url)
+        return None
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
@@ -53,10 +61,8 @@ class RecipeSerializer(serializers.ModelSerializer):
                 primary_image = obj.images.first()
                 
             if primary_image and primary_image.image:
-                request = self.context.get('request')
-                if request is not None:
-                    return request.build_absolute_uri(primary_image.image.url)
-                return primary_image.image.url
+                # Cloudinary já fornece URLs completas, não precisamos de build_absolute_uri
+                return str(primary_image.image.url)
         except Exception as e:
             import logging
             logger = logging.getLogger('django')
