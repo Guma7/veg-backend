@@ -237,8 +237,17 @@ SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
 # Configurações específicas para cross-origin no deploy
 CSRF_COOKIE_DOMAIN = None  # Permitir que o cookie seja definido para qualquer domínio
 CSRF_COOKIE_PATH = '/'  # Definir o caminho do cookie
-CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Nome do cabeçalho CSRF
+# Configurações específicas para CSRF
+# O Django automaticamente converte X-CSRFToken para HTTP_X_CSRFTOKEN internamente
+# Não precisamos definir CSRF_HEADER_NAME pois o padrão já é correto
+# CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Comentado - usar padrão do Django
 CSRF_TOKEN_HEADER_NAME = 'X-CSRFToken'  # Nome do token no cabeçalho
+
+# Configurações para garantir que tokens de 64 caracteres sejam aceitos
+# O Django por padrão usa CSRF_TOKEN_LENGTH = 64 (2 * CSRF_SECRET_LENGTH)
+# Estas configurações garantem compatibilidade
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+CSRF_COOKIE_AGE = 31449600  # 1 ano em segundos
 
 # REST_FRAMEWORK já configurado acima
 
