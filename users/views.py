@@ -23,6 +23,10 @@ logger.setLevel(logging.DEBUG)
 def get_csrf_token(request):
     """Endpoint para obter um token CSRF"""
     token = get_token(request)
+    logger.info(f"Token CSRF gerado: {token}")
+    logger.info(f"Comprimento do token CSRF: {len(token)}")
+    logger.info(f"Cookies na requisição: {request.COOKIES}")
+    logger.info(f"Headers da requisição: {dict(request.headers)}")
     return JsonResponse({'csrfToken': token})
 
 

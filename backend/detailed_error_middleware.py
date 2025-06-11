@@ -84,7 +84,9 @@ class DetailedErrorMiddleware(MiddlewareMixin):
                     'debug_info': {
                         'headers': dict(request.headers),
                         'auth_header_present': 'Authorization' in request.headers,
-                        # 'csrf_token_present': 'X-CSRFToken' in request.headers,  # Removido para desabilitar CSRF
+                        'csrf_token_present': 'X-CSRFToken' in request.headers,
+                        'csrf_token_value': request.headers.get('X-CSRFToken', 'Not present'),
+                        'csrf_token_length': len(request.headers.get('X-CSRFToken', '')),
                         'content_type': request.headers.get('Content-Type', 'Not specified')
                     }
                 }

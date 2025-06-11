@@ -234,9 +234,11 @@ CSRF_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
 SESSION_COOKIE_SAMESITE = 'None'  # Permitir cookies cross-site em produção
 SESSION_COOKIE_SECURE = True  # Requer HTTPS em produção
 
-# Adicionar configuração para cookies particionados
-CSRF_COOKIE_PARTITIONED = True  # Adicionar atributo Partitioned ao cookie CSRF
-SESSION_COOKIE_PARTITIONED = True  # Adicionar atributo Partitioned ao cookie de sessão
+# Configurações específicas para cross-origin no deploy
+CSRF_COOKIE_DOMAIN = None  # Permitir que o cookie seja definido para qualquer domínio
+CSRF_COOKIE_PATH = '/'  # Definir o caminho do cookie
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Nome do cabeçalho CSRF
+CSRF_TOKEN_HEADER_NAME = 'X-CSRFToken'  # Nome do token no cabeçalho
 
 # REST_FRAMEWORK já configurado acima
 
