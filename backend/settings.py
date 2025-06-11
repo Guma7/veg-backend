@@ -126,7 +126,7 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'user-agent',
     'x-requested-with',
-    'x-csrftoken',
+    'X-CSRFToken',
     'cache-control',
 ]
 
@@ -221,7 +221,7 @@ CORS_ALLOW_HEADERS = [
     'dnt',
     'origin',
     'user-agent',
-    'x-csrftoken',
+    'X-CSRFToken',
     'x-requested-with',
     'cache-control',
 ]
@@ -348,7 +348,6 @@ cloudinary.config(
     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
     api_key=os.getenv('CLOUDINARY_API_KEY'),
     api_secret=os.getenv('CLOUDINARY_API_SECRET'),
-    cloudinary_url=os.getenv('CLOUDINARY_URL'),
     secure=True
 )
 
