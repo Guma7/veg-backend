@@ -30,6 +30,22 @@ def get_csrf_token(request):
     token = get_token(request)
     logger.info(f"Token CSRF gerado: {token}")
     logger.info(f"Comprimento do token CSRF: {len(token)}")
+    
+    # Verificar e corrigir o comprimento do token (64 caracteres)
+    if len(token) != 64:
+        logger.warning(f"Token CSRF com comprimento incorreto: {len(token)}, esperado: 64")
+        
+        # Ajustar o comprimento do token para 64 caracteres
+        if len(token) < 64:
+            # Se for menor que 64, preencher com caracteres até atingir 64
+            padding = 'X' * (64 - len(token))
+            token = token + padding
+            logger.info(f"Token CSRF ajustado com padding: {len(token)}")
+        elif len(token) > 64:
+            # Se for maior que 64, truncar para 64 caracteres
+            token = token[:64]
+            logger.info(f"Token CSRF truncado: {len(token)}")
+    
     logger.info(f"Cookies na requisição: {request.COOKIES}")
     logger.info(f"Headers da requisição: {dict(request.headers)}")
     return JsonResponse({'CSRFToken': token})

@@ -51,15 +51,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'  # Usar slug como campo de busca ao invés de id
     serializer_class = RecipeSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]  # Suporte para uploads de arquivos
+    permission_classes = [IsAuthenticated]  # Exigir autenticação para todas as operações
     
     def perform_create(self, serializer):
+        # Adicionar logs detalhados para depuração de CSRF
+        import logging
+        logger = logging.getLogger('django')
+        
+        # Log informações sobre CSRF
+        csrf_token_header = self.request.META.get('HTTP_X_CSRFTOKEN', 'Não encontrado')
+        csrf_cookie = self.request.COOKIES.get('Csrftoken', 'Não encontrado')
+        
+        logger.info(f"=== CRIAÇÃO DE RECEITA - DEBUG CSRF ===")
+        logger.info(f"Usuário: {self.request.user}")
+        logger.info(f"Usuário autenticado: {self.request.user.is_authenticated}")
+        logger.info(f"Token CSRF no cabeçalho: {csrf_token_header[:10]}...{csrf_token_header[-10:] if len(csrf_token_header) > 20 else csrf_token_header}")
+        logger.info(f"Comprimento do token CSRF (cabeçalho): {len(csrf_token_header) if csrf_token_header != 'Não encontrado' else 0}")
+        logger.info(f"Cookie CSRF: {csrf_cookie[:10]}...{csrf_cookie[-10:] if len(csrf_cookie) > 20 else csrf_cookie}")
+        logger.info(f"Comprimento do cookie CSRF: {len(csrf_cookie) if csrf_cookie != 'Não encontrado' else 0}")
+        logger.info(f"Headers da requisição: {dict(self.request.headers)}")
+        logger.info(f"Método da requisição: {self.request.method}")
+        logger.info(f"Content-Type: {self.request.content_type}")
+        
         # Obter imagens do request
         images = self.request.FILES.getlist('images')
         single_image = self.request.FILES.get('image')
         
-        # Adicionar logs para depuração
-        import logging
-        logger = logging.getLogger('django')
         logger.info(f"Processando upload de receita: {len(images)} imagens na lista, imagem única: {single_image is not None}")
         
         # Verificar se há pelo menos uma imagem

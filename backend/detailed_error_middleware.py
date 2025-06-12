@@ -87,7 +87,11 @@ class DetailedErrorMiddleware(MiddlewareMixin):
                         'csrf_token_present': 'X-CSRFToken' in request.headers or 'X-Csrftoken' in request.headers,
                         'csrf_token_value': request.headers.get('X-CSRFToken') or request.headers.get('X-Csrftoken', 'Not present'),
                         'csrf_token_length': len(request.headers.get('X-CSRFToken') or request.headers.get('X-Csrftoken', '')),
-                        'content_type': request.headers.get('Content-Type', 'Not specified')
+                        'csrf_token_length_valid': len(request.headers.get('X-CSRFToken') or request.headers.get('X-Csrftoken', '')) == 64,
+                        'csrf_token_expected_length': 64,
+                        'content_type': request.headers.get('Content-Type', 'Not specified'),
+                        'csrf_cookie_present': 'csrftoken' in request.COOKIES,
+                        'csrf_cookie_length': len(request.COOKIES.get('csrftoken', ''))
                     }
                 }
                 

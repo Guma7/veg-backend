@@ -243,6 +243,8 @@ CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Padrão do Django
 # Configurações para garantir que tokens de 64 caracteres sejam aceitos
 # O Django por padrão usa CSRF_TOKEN_LENGTH = 64 (2 * CSRF_SECRET_LENGTH)
 # Estas configurações garantem compatibilidade
+CSRF_TOKEN_LENGTH = 64  # Definir explicitamente o comprimento do token CSRF
+CSRF_SECRET_LENGTH = 32  # Metade do comprimento do token (64/2 = 32)
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 CSRF_COOKIE_AGE = 31449600  # 1 ano em segundos
 

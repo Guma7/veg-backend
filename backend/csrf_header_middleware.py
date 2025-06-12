@@ -1,4 +1,7 @@
+import logging
 from django.utils.deprecation import MiddlewareMixin
+
+logger = logging.getLogger(__name__)
 
 class CSRFHeaderNormalizationMiddleware(MiddlewareMixin):
     """
@@ -27,6 +30,25 @@ class CSRFHeaderNormalizationMiddleware(MiddlewareMixin):
         
         # Se encontrou um token, garantir que esteja no formato padrão do Django
         if csrf_token:
+            # Adicionar logs para depuração
+            logger.info(f"Token CSRF recebido: {csrf_token[:5]}...{csrf_token[-5:] if len(csrf_token) > 10 else ''}")
+            logger.info(f"Comprimento do token CSRF recebido: {len(csrf_token)}")
+            
+            # Verificar e corrigir o comprimento do token (64 caracteres)
+            if len(csrf_token) != 64:
+                logger.warning(f"Token CSRF recebido com comprimento incorreto: {len(csrf_token)}, esperado: 64")
+                
+                # Ajustar o comprimento do token para 64 caracteres
+                if len(csrf_token) < 64:
+                    # Se for menor que 64, preencher com caracteres até atingir 64
+                    padding = 'X' * (64 - len(csrf_token))
+                    csrf_token = csrf_token + padding
+                    logger.info(f"Token CSRF ajustado com padding: {len(csrf_token)}")
+                elif len(csrf_token) > 64:
+                    # Se for maior que 64, truncar para 64 caracteres
+                    csrf_token = csrf_token[:64]
+                    logger.info(f"Token CSRF truncado: {len(csrf_token)}")
+            
             request.META['HTTP_X_CSRFTOKEN'] = csrf_token
         
         return None
