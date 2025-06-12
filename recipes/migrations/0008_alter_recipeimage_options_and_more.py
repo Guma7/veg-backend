@@ -25,14 +25,4 @@ class Migration(migrations.Migration):
             name='updated_at',
             field=models.DateTimeField(auto_now=True),
         ),
-        migrations.AlterField(
-            model_name='recipe',
-            name='image',
-            field=cloudinary.models.CloudinaryField(max_length=255, verbose_name='image'),
-        ),
-        migrations.AlterField(
-            model_name='recipeimage',
-            name='image',
-            field=cloudinary.models.CloudinaryField(max_length=255, verbose_name='image'),
-        ),
     ]

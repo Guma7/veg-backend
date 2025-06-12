@@ -18,11 +18,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='recipeimage',
             name='image',
-            field=models.ImageField(upload_to='C:/Users/gumae/veg/backend/media/recipe_images/', validators=[]),
+            field=models.ImageField(upload_to='recipe_images/', validators=[]),
         ),
         migrations.AlterField(
             model_name='recipe',
             name='image',
-            field=models.ImageField(upload_to='C:/Users/gumae/veg/backend/media/recipe_images/', validators=[]),
+            field=models.ImageField(upload_to='recipe_images/', validators=[]),
         ),
     ]
