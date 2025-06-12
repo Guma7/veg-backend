@@ -36,7 +36,7 @@ def custom_exception_handler(exc, context):
                 'debug_info': {
                     'headers': dict(request.headers),
                     'auth_header_present': 'Authorization' in request.headers,
-                     'csrf_token_present': 'X-CSRFToken' in request.headers,  
+                     'csrf_token_present': 'X-CSRFToken' in request.headers or 'X-Csrftoken' in request.headers,  
                     'content_type': request.headers.get('Content-Type', 'Not specified')
                 }
             }
@@ -63,7 +63,7 @@ def custom_exception_handler(exc, context):
                 'debug_info': {
                     'headers': dict(request.headers),
                     'auth_header_present': 'Authorization' in request.headers,
-                    'csrf_token_present': 'X-CSRFToken' in request.headers,  
+                    'csrf_token_present': 'X-CSRFToken' in request.headers or 'X-Csrftoken' in request.headers,  
                     'content_type': request.headers.get('Content-Type', 'Not specified')
                 }
             }

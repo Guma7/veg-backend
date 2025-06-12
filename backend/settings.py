@@ -101,7 +101,7 @@ if not os.path.exists(MEDIA_ROOT):
 
 # Configurações de CORS para desenvolvimento e produção
 CORS_ALLOW_CREDENTIALS = True
-CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization', 'X-CSRFToken']
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization', 'X-CSRFToken', 'x-csrftoken']
 
 # Configurações de métodos e cabeçalhos permitidos
 CORS_ALLOW_METHODS = [
@@ -122,6 +122,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-requested-with',
     'X-CSRFToken',
+    'x-csrftoken',  # Adicionar versão minúscula para compatibilidade
     'cache-control',
 ]
 
@@ -163,6 +164,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # Deve estar no início
     'django.middleware.common.CommonMiddleware',
+    'backend.csrf_header_middleware.CSRFHeaderNormalizationMiddleware',  # Normalizar cabeçalhos CSRF
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -206,7 +208,7 @@ if BACKEND_URL not in CSRF_TRUSTED_ORIGINS:
 
 # Configurações adicionais de CORS
 CORS_ALLOW_CREDENTIALS = True
-CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization', 'X-CSRFToken']
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Authorization', 'X-CSRFToken', 'x-csrftoken']
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -217,6 +219,7 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'user-agent',
     'X-CSRFToken',
+    'x-csrftoken',  # Adicionar versão minúscula para compatibilidade
     'x-requested-with',
     'cache-control',
 ]
@@ -234,8 +237,8 @@ CSRF_COOKIE_DOMAIN = None  # Permitir que o cookie seja definido para qualquer d
 CSRF_COOKIE_PATH = '/'  # Definir o caminho do cookie
 # Configurações específicas para CSRF
 # O Django automaticamente converte X-CSRFToken para HTTP_X_CSRFTOKEN internamente
-# Não precisamos definir CSRF_HEADER_NAME pois o padrão já é correto
-# CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Comentado - usar padrão do Django
+# Configurando para aceitar tanto maiúscula quanto minúscula
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Padrão do Django
 
 # Configurações para garantir que tokens de 64 caracteres sejam aceitos
 # O Django por padrão usa CSRF_TOKEN_LENGTH = 64 (2 * CSRF_SECRET_LENGTH)
