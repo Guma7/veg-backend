@@ -236,7 +236,6 @@ CSRF_COOKIE_PATH = '/'  # Definir o caminho do cookie
 # O Django automaticamente converte X-CSRFToken para HTTP_X_CSRFTOKEN internamente
 # Não precisamos definir CSRF_HEADER_NAME pois o padrão já é correto
 # CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Comentado - usar padrão do Django
-CSRF_TOKEN_HEADER_NAME = 'X-CSRFToken'  # Nome do token no cabeçalho
 
 # Configurações para garantir que tokens de 64 caracteres sejam aceitos
 # O Django por padrão usa CSRF_TOKEN_LENGTH = 64 (2 * CSRF_SECRET_LENGTH)
