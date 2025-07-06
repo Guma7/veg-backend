@@ -10,19 +10,33 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='recipeimage',
-            name='is_primary',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AlterField(
-            model_name='recipeimage',
-            name='image',
-            field=models.ImageField(upload_to='recipe_images/', validators=[]),
-        ),
-        migrations.AlterField(
-            model_name='recipe',
-            name='image',
-            field=models.ImageField(upload_to='recipe_images/', validators=[]),
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                -- Adicionar campo is_primary se não existir
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name = 'recipes_recipeimage' AND column_name = 'is_primary') THEN
+                    ALTER TABLE recipes_recipeimage ADD COLUMN is_primary BOOLEAN DEFAULT FALSE;
+                END IF;
+                
+                -- Adicionar campos created_at e updated_at se não existirem
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name = 'recipes_recipeimage' AND column_name = 'created_at') THEN
+                    ALTER TABLE recipes_recipeimage ADD COLUMN created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+                END IF;
+                
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name = 'recipes_recipeimage' AND column_name = 'updated_at') THEN
+                    ALTER TABLE recipes_recipeimage ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+                END IF;
+            END
+            $$;
+            """,
+            reverse_sql="""
+            ALTER TABLE recipes_recipeimage DROP COLUMN IF EXISTS is_primary;
+            ALTER TABLE recipes_recipeimage DROP COLUMN IF EXISTS created_at;
+            ALTER TABLE recipes_recipeimage DROP COLUMN IF EXISTS updated_at;
+            """
         ),
     ]
