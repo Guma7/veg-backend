@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import core.validators
+import cloudinary.models
 
 
 class Migration(migrations.Migration):
@@ -12,22 +12,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'recipes_recipeimage') THEN
-                    CREATE TABLE recipes_recipeimage (
-                        id BIGSERIAL PRIMARY KEY,
-                        image VARCHAR(100) NOT NULL,
-                        uploaded_at TIMESTAMP WITH TIME ZONE NOT NULL,
-                        recipe_id BIGINT NOT NULL REFERENCES recipes_recipe(id) ON DELETE CASCADE
-                    );
-                    CREATE INDEX recipes_recipeimage_recipe_id_idx ON recipes_recipeimage(recipe_id);
-                END IF;
-            END
-            $$;
-            """,
-            reverse_sql="DROP TABLE IF EXISTS recipes_recipeimage;"
+        migrations.CreateModel(
+            name='RecipeImage',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('image', cloudinary.models.CloudinaryField(max_length=255, verbose_name='image')),
+                ('uploaded_at', models.DateTimeField(auto_now_add=True)),
+                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='recipes.recipe')),
+            ],
+            options={
+                'ordering': ['uploaded_at'],
+            },
         ),
     ]

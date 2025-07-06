@@ -11,34 +11,39 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="""
-            DO $$
-            BEGIN
-                -- Renomear uploaded_at para created_at se a coluna uploaded_at existir
-                IF EXISTS (SELECT 1 FROM information_schema.columns 
-                          WHERE table_name = 'recipes_recipeimage' AND column_name = 'uploaded_at') THEN
-                    ALTER TABLE recipes_recipeimage RENAME COLUMN uploaded_at TO created_at;
-                END IF;
-                
-                -- Adicionar updated_at se não existir
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                              WHERE table_name = 'recipes_recipeimage' AND column_name = 'updated_at') THEN
-                    ALTER TABLE recipes_recipeimage ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
-                END IF;
-            END
-            $$;
-            """,
-            reverse_sql="""
-            DO $$
-            BEGIN
-                IF EXISTS (SELECT 1 FROM information_schema.columns 
-                          WHERE table_name = 'recipes_recipeimage' AND column_name = 'created_at') THEN
-                    ALTER TABLE recipes_recipeimage RENAME COLUMN created_at TO uploaded_at;
-                END IF;
-                ALTER TABLE recipes_recipeimage DROP COLUMN IF EXISTS updated_at;
-            END
-            $$;
-            """
+        migrations.AlterModelOptions(
+            name='recipeimage',
+            options={'ordering': ['-is_primary', '-created_at']},
+        ),
+        migrations.RenameField(
+            model_name='recipeimage',
+            old_name='uploaded_at',
+            new_name='created_at',
+        ),
+        migrations.AddField(
+            model_name='recipeimage',
+            name='updated_at',
+            field=models.DateTimeField(auto_now=True),
+        ),
+        migrations.AddField(
+            model_name='recipeimage',
+            name='is_primary',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AlterField(
+            model_name='recipeimage',
+            name='image',
+            field=cloudinary.models.CloudinaryField(
+                folder='recipe_images',
+                max_length=255,
+                transformation={
+                    'quality': 'auto:eco',
+                    'fetch_format': 'auto',
+                    'crop': 'limit',
+                    'width': 1920,
+                    'height': 1080
+                },
+                verbose_name='image'
+            ),
         ),
     ]
