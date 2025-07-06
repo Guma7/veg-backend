@@ -14,14 +14,11 @@ python check_db_status.py
 echo "🔍 Verificando status das migrações antes..."
 python manage.py showmigrations
 
-echo "🚀 Executando correção de tabelas faltantes..."
-python fix_missing_tables.py
+echo "🚀 Executando script de deploy com migrações seguras..."
+python deploy_migrate.py
 
-echo "🔧 Corrigindo problemas específicos no esquema do banco de dados..."
-python fix_db_schema.py
-
-echo "🔧 Corrigindo signals do UserProfile..."
-python fix_user_signals.py
+echo "🔍 Verificando status das migrações após deploy..."
+python manage.py showmigrations
 
 echo "✅ Verificando status final do banco de dados..."
 python check_db_status.py
